@@ -1,4 +1,4 @@
-# Solutions Repo Template
+# Persisted Query to REST Endpoint
 
 Give your project a relevant name and description in this README.
 

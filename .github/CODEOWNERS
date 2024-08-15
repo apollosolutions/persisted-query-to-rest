@@ -1,0 +1,8 @@
+# This file is used to automate PR assignments
+# You can also assign per-directory owners if multiple owners are applicable
+# For more information on CODEOWNERS, see: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Example for assigning to the Solutions Factory 
+# * @apollosolutions/solutions-factory
+
+# * @REPLACE_WITH_YOUR_TEAM_OR_USER

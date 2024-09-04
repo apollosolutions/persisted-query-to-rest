@@ -28,7 +28,7 @@ struct EndpointHandler {
 #[command(version, about, long_about = None)]
 struct CliFlags {
     /// The configuration file to use; this is required and can be relative.
-    #[clap(long = "config-schema", default_value = "config.yaml")]
+    #[clap(long = "config", short, default_value = "config.yaml")]
     config_path: String,
 
     #[clap(subcommand)]

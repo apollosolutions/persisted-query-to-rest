@@ -29,5 +29,7 @@ ehthumbs.db
 
 
 # Added by cargo
-
 /target
+
+# Repo-specific
+config.yaml

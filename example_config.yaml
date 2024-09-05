@@ -1,47 +1,47 @@
 # Common config for all endpoints
 common:
     path_prefix: "/api/v1"
-    listen: ":8081"
+    listen: "0.0.0.0:3000"
     graphql_endpoint: "https://localhost:3000/"
 
-logging: 
+logging:
     format: "pretty"
 
 # A list of all the new endpoints to create
 endpoints:
-   # Create an endpoint that requires the id in the path
- - path: "/users/:id"
-   pq_id: "123456789"
-   path_arguments:
-     # Map the arguments to the GraphQL arg called $userId
-     - from: "id"
-       to: "userId"
-       
- - path: "/products"
-   pq_id: "123456789"
+    # Create an endpoint that requires the id in the path
+    - path: "/users/:id"
+      pq_id: "123456789"
+      path_arguments:
+          # Map the arguments to the GraphQL arg called $userId
+          - from: "id"
+            to: "userId"
 
-   # API for all users with url params
- - path: "/users"
-   pq_id: "123456789"
-   # Look for these values in the url query params
-   # Maps `/users?sort=X` to GQL `query GetUsers(userSort: String!) { ... }`
-   query_params:
-     - from: "sort"
-       to: "userSortInput"
-       required: true
+    - path: "/products"
+      pq_id: "123456789"
 
- # Mutation for updating the user’s email
- - path: "/users/:id/email"
-   method: "PATCH"
-   pq_id: "123456789"
-   path_arguments:
-     # Map the arguments to the GraphQL arg called $userId
-     # This will be added as a root variable joined on the object below
-     - from: "id"
-       to: "userId"
+      # API for all users with url params
+    - path: "/users"
+      pq_id: "123456789"
+      # Look for these values in the url query params
+      # Maps `/users?sort=X` to GQL `query GetUsers(userSort: String!) { ... }`
+      query_params:
+          - from: "sort"
+            to: "userSortInput"
+            required: true
 
-   # Since the GraphQL variables are just a JSON object,
-   # an easy way to pass complicated input types is to just put it in the body
-   # and pass that on as-is to the GraphQL input
-   # { “input”: { “email”: “foo@example.com”, “sendNotification”: true } }
-   use_request_body_as_variables: true
+    # Mutation for updating the user’s email
+    - path: "/users/:id/email"
+      method: "PATCH"
+      pq_id: "123456789"
+      path_arguments:
+          # Map the arguments to the GraphQL arg called $userId
+          # This will be added as a root variable joined on the object below
+          - from: "id"
+            to: "userId"
+
+      # Since the GraphQL variables are just a JSON object,
+      # an easy way to pass complicated input types is to just put it in the body
+      # and pass that on as-is to the GraphQL input
+      # { “input”: { “email”: “foo@example.com”, “sendNotification”: true } }
+      use_request_body_as_variables: true

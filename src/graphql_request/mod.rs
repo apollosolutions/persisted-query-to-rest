@@ -34,21 +34,35 @@ pub struct Client {
 
 impl Client {
     pub fn new(url: &str) -> Self {
+        let client = match reqwest::Client::builder().build() {
+            Ok(c) => c,
+            Err(e) => panic!("Failed to create client: {:?}", e),
+        };
         Self {
-            client: reqwest::Client::new(),
+            client: client,
             url: url.to_string(),
         }
     }
 
     pub async fn make_request(
         &self,
+        mut request_headers: HeaderMap,
         endpoint: config::Endpoint,
         parameters: Option<HashMap<String, Value>>,
-    ) -> Result<reqwest::Response, reqwest::Error> {
+    ) -> Result<reqwest::Response, Box<dyn std::error::Error + Send + Sync>> {
         let mut request = self.client.request(reqwest::Method::POST, &self.url);
-        let mut default_headers = HeaderMap::new();
-        default_headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
-        request = request.headers(default_headers);
+
+        // Usage of unwrap is safe here because the headers are hardcoded and will always be valid
+        request_headers.insert(CONTENT_TYPE, "application/json".parse().unwrap());
+        request_headers.insert("apollographql-client-name", "rest_bridge".parse().unwrap());
+        request_headers.insert("accept", "*/*".parse().unwrap());
+
+        // Remove the host header to prevent issues with the proxy
+        request_headers.remove("host");
+
+        request = request.headers(request_headers.clone());
+        debug!("Request Headers: {:?}", request_headers);
+        debug!("Making request to: {}", &self.url);
         let variables = if let Some(params) = parameters {
             Some(params)
         } else {
@@ -64,10 +78,62 @@ impl Client {
                 },
             },
         };
-        let json = serde_json::to_string(&body).unwrap();
-        request = request.body(json.clone());
-        debug!("JSON: {:?}", json);
-        let response = request.send().await;
-        response
+
+        match serde_json::to_string(&body) {
+            Ok(json) => {
+                debug!("JSON: {:?}", json);
+                request = request.body(json);
+            }
+            Err(e) => return Err(Box::from(e.to_string().as_str())),
+        }
+
+        match request.send().await {
+            Ok(resp) => Ok(resp),
+            Err(e) => Err(Box::from(e.to_string().as_str())),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use mockito;
+    use serde_json::json;
+
+    #[tokio::test]
+    async fn test_make_request() {
+        let mut server = mockito::Server::new_async().await;
+        let url = server.url();
+
+        let mock_endpoint = server
+            .mock("POST", "/")
+            .with_header("content-type", "application/json")
+            .match_header("test", "test")
+            .match_body(mockito::Matcher::Json(json!({
+                "extensions": {
+                    "persistedQuery": {
+                        "sha256Hash": "test",
+                        "version": 1
+                    }
+                }
+            })))
+            .create();
+        let client = Client::new(url.as_str());
+        let mut headers = HeaderMap::new();
+        headers.insert("test", "test".parse().unwrap());
+        let endpoint = config::Endpoint {
+            method: config::HttpMethod::GET,
+            path: "/test".to_string(),
+            pq_id: "test".to_string(),
+            path_arguments: None,
+            query_params: None,
+        };
+
+        let response = client
+            .make_request(headers, endpoint, None)
+            .await
+            .expect("Failed to make request");
+        mock_endpoint.assert();
+        assert_eq!(response.status().as_u16(), 200);
     }
 }

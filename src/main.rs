@@ -1,28 +1,17 @@
-use axum::{
-    extract::{Path, Query, State},
-    http::HeaderMap,
-    response::IntoResponse,
-    routing::{delete, get, patch, post, put},
-    Json, Router,
+use crate::{
+    config::{generate_schema, parse_config, HttpMethod, LogLevel},
+    handler::handler,
 };
-use axum_macros::debug_handler;
+use axum::routing::{delete, get, patch, post, put};
+use axum::Router;
 use clap::{Parser, Subcommand};
-use config::{generate_schema, parse_config, Endpoint, HttpMethod, LogLevel};
 use graphql_request::Client;
-use reqwest::StatusCode;
-use serde_json::{json, Value};
-use std::collections::HashMap;
-use tracing::{debug, info, Level};
+use handler::EndpointHandler;
+use tracing::{error, info, Level};
 use tracing_subscriber::FmtSubscriber;
-
 pub mod config;
 pub mod graphql_request;
-
-#[derive(Clone)]
-struct EndpointHandler {
-    endpoint: Endpoint,
-    client: Client,
-}
+pub mod handler;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -97,109 +86,20 @@ async fn start_proxy(args: CliFlags) {
 
     let app = Router::new().nest(&user_config.common.path_prefix, endpoint_routes);
 
-    let listener = tokio::net::TcpListener::bind(user_config.common.listen)
-        .await
-        .unwrap();
+    // Attempt to start the listener on the provided address
+    let listener = match tokio::net::TcpListener::bind(user_config.common.listen).await {
+        Ok(listener) => listener,
+        Err(e) => {
+            error!("Error binding to address: {:?}", e);
+            return;
+        }
+    };
+
     info!("🚀 Listening on {}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
-}
-
-#[debug_handler]
-/// The handler function for the endpoints.
-/// Each endpoint uses the same handler function but uses different states to represent the PQ it is serving along with the configuration.
-async fn handler(
-    Path(path_parameters): Path<HashMap<String, String>>,
-    State(state): State<EndpointHandler>,
-    query_parameters: Query<HashMap<String, String>>,
-) -> impl IntoResponse {
-    let mut request_parameters = HashMap::<String, Value>::new();
-    if let Some(params) = state.endpoint.query_params.clone() {
-        for param in params {
-            if query_parameters.contains_key(param.from.clone().as_str()) {
-                debug!(
-                    "Query Key: {:?}, Value: {:?} QV: {:?}",
-                    param.from,
-                    param.to,
-                    query_parameters.get(param.from.as_str()).unwrap()
-                );
-                let v = query_parameters.get(param.from.as_str()).unwrap();
-                match param.kind.clone().from_str(v) {
-                    Ok(p) => request_parameters.insert(param.to.unwrap_or(param.from.clone()), p),
-                    Err(e) => return build_error_response(StatusCode::BAD_REQUEST, e.to_string()),
-                };
-            } else if param.required {
-                return (
-                    StatusCode::BAD_REQUEST,
-                    HeaderMap::new(),
-                    Json(Value::String(format!(
-                        "Missing required parameter: {}",
-                        param.from
-                    ))),
-                );
-            }
+    match axum::serve(listener, app).await {
+        Ok(_) => (),
+        Err(e) => {
+            error!("Error starting server: {:?}", e);
         }
     }
-
-    if let Some(params) = state.endpoint.path_arguments.clone() {
-        for param in params {
-            if path_parameters.contains_key(param.from.clone().as_str()) {
-                debug!(
-                    "Query Key: {:?}, Value: {:?} QV: {:?}",
-                    param.from,
-                    param.to,
-                    path_parameters.get(param.from.as_str()).unwrap()
-                );
-                let v = path_parameters.get(param.from.as_str()).unwrap();
-                match param.kind.clone().from_str(v) {
-                    Ok(p) => request_parameters.insert(param.to.unwrap_or(param.from.clone()), p),
-                    Err(e) => return build_error_response(StatusCode::BAD_REQUEST, e.to_string()),
-                };
-            } else if param.required {
-                return (
-                    StatusCode::BAD_REQUEST,
-                    HeaderMap::new(),
-                    Json(Value::String(format!(
-                        "Missing required parameter: {}",
-                        param.from
-                    ))),
-                );
-            }
-        }
-    }
-
-    debug!("Request Parameters: {:?}", request_parameters);
-    let response = state
-        .client
-        .make_request(state.endpoint.clone(), Some(request_parameters))
-        .await;
-    debug!("Endpoint: {:?}", state.endpoint);
-    match response {
-        Ok(resp) => {
-            debug!("Response: {:?}", resp);
-            let status = resp.status();
-            let mut headers = resp.headers().clone();
-            // Remove content-length header to prevent issues with axum
-            headers.remove("content-length");
-            let json = resp.json::<Value>().await;
-            match json {
-                Ok(json) => (status, headers, Json(json)),
-                Err(e) => build_error_response(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
-            }
-        }
-        Err(e) => build_error_response(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
-    }
-}
-
-fn build_error_response(
-    status: StatusCode,
-    message: String,
-) -> (StatusCode, HeaderMap, Json<Value>) {
-    (
-        status,
-        HeaderMap::new(),
-        Json(json!({
-            "errors": vec![message],
-            "data":null,
-        })),
-    )
 }

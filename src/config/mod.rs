@@ -73,6 +73,8 @@ pub struct Endpoint {
     pub query_params: Option<Vec<Parameter>>,
     /// The path arguments that the endpoint should accept
     pub path_arguments: Option<Vec<Parameter>>,
+    /// The body parameters that the endpoint should accept
+    pub body_params: Option<Vec<Parameter>>,
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone, JsonSchema)]

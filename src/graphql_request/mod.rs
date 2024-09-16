@@ -60,6 +60,9 @@ impl Client {
         // Remove the host header to prevent issues with the proxy
         request_headers.remove("host");
 
+        // Remove the content-length header to prevent issues with the proxy for POST requests
+        request_headers.remove("content-length");
+
         request = request.headers(request_headers.clone());
         debug!("Request Headers: {:?}", request_headers);
         debug!("Making request to: {}", &self.url);
@@ -81,7 +84,7 @@ impl Client {
 
         match serde_json::to_string(&body) {
             Ok(json) => {
-                debug!("JSON: {:?}", json);
+                debug!("Request JSON: {:?}", json);
                 request = request.body(json);
             }
             Err(e) => return Err(Box::from(e.to_string().as_str())),
@@ -127,6 +130,7 @@ mod tests {
             pq_id: "test".to_string(),
             path_arguments: None,
             query_params: None,
+            body_params: None,
         };
 
         let response = client

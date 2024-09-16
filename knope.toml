@@ -1,0 +1,60 @@
+[package]
+versioned_files = ["Cargo.toml"]
+changelog = "CHANGELOG.md"
+extra_changelog_sections = [
+    { types = [
+        "major",
+    ], name = "❗️Breaking ❗" },
+    { types = [
+        "minor",
+    ], name = "🚀 Features" },
+    { types = [
+        "patch",
+    ], name = "🐛 Fixes" },
+    { footers = [
+        "Changelog-Note",
+    ], name = "📝 Notes" },
+]
+
+[[package.assets]]
+path = "artifacts/persisted-query-to-rest-aarch64-apple-darwin.tgz"
+
+[[package.assets]]
+path = "artifacts/persisted-query-to-rest-x86_64-unknown-linux-gnu.tgz"
+
+[[package.assets]]
+path = "artifacts/persisted-query-to-rest-x86_64-pc-windows-msvc.tgz"
+
+[[workflows]]
+name = "prepare-release"
+
+[[workflows.steps]]
+type = "PrepareRelease"
+
+[[workflows.steps]]
+type = "Command"
+command = "git commit -m \"chore: prepare release version\""
+variables = { "version" = "Version" }
+
+[[workflows.steps]]
+type = "Command"
+command = "git push"
+
+[workflows.steps.variables]
+"$version" = "Version"
+
+[[workflows]]
+name = "release"
+
+[[workflows.steps]]
+type = "Release"
+
+[[workflows]]
+name = "document-change"
+
+[[workflows.steps]]
+type = "CreateChangeFile"
+
+[github]
+owner = "apollosolutions"
+repo = "persisted-query-to-rest"

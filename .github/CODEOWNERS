@@ -3,6 +3,4 @@
 # For more information on CODEOWNERS, see: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Example for assigning to the Solutions Factory 
-# * @apollosolutions/solutions-factory
-
-# * @REPLACE_WITH_YOUR_TEAM_OR_USER
+* @apollosolutions/solutions-factory

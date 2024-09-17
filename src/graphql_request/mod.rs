@@ -39,7 +39,7 @@ impl Client {
             Err(e) => panic!("Failed to create client: {:?}", e),
         };
         Self {
-            client: client,
+            client,
             url: url.to_string(),
         }
     }
@@ -66,14 +66,10 @@ impl Client {
         request = request.headers(request_headers.clone());
         debug!("Request Headers: {:?}", request_headers);
         debug!("Making request to: {}", &self.url);
-        let variables = if let Some(params) = parameters {
-            Some(params)
-        } else {
-            None
-        };
+        let variables = parameters;
 
         let body = RequestBody {
-            variables: variables,
+            variables,
             extensions: RequestBodyExtensions {
                 persisted_query: RequestBodyPersistedQuery {
                     sha_256_hash: endpoint.pq_id.clone(),

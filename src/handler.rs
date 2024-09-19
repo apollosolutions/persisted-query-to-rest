@@ -83,20 +83,15 @@ pub async fn handler(
             match json {
                 Ok(json) => {
                     debug!("JSON: {:?}", json);
-                    match json.errors {
-                        Some(ref errors) => {
-                            // If there are errors in the response, set the status to 500 if the response is 200 or 400; this prioritizes the status returned by the router in non-compliant situations
-                            if (status == StatusCode::OK || status == StatusCode::BAD_REQUEST)
-                                && errors.len() > 0
-                            {
-                                status = StatusCode::INTERNAL_SERVER_ERROR;
-                                // If there is data in the response, set the status to 206 to indicate partial content per RFC
-                                if let Some(_) = json.data {
-                                    status = StatusCode::PARTIAL_CONTENT;
-                                }
+                    if let Some(ref errors) = json.errors {
+                        // If there are errors in the response, set the status to 500 if the response is 200 or 400; this prioritizes the status returned by the router in non-compliant situations
+                        if status == StatusCode::OK && !errors.is_empty() {
+                            status = StatusCode::INTERNAL_SERVER_ERROR;
+                            // If there is data in the response, set the status to 206 to indicate partial content per RFC
+                            if json.data.is_some() {
+                                status = StatusCode::PARTIAL_CONTENT;
                             }
                         }
-                        _ => {}
                     }
                     (status, headers, Json(json!(json)))
                 }

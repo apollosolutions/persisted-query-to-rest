@@ -317,6 +317,7 @@ mod tests {
                 kind: ParamKind::STRING,
                 required: true,
             }]),
+            body_params: None,
         };
         let client = Client::new(server.url().as_str());
         let state = EndpointHandler { endpoint, client };
@@ -330,6 +331,7 @@ mod tests {
             Path(vec![].into_iter().collect()),
             State(state),
             Query(query_parameters),
+            None,
         )
         .await
         .into_response()
@@ -378,6 +380,7 @@ mod tests {
                 kind: ParamKind::STRING,
                 required: true,
             }]),
+            body_params: None,
         };
         let client = Client::new(server.url().as_str());
         let state = EndpointHandler { endpoint, client };
@@ -391,6 +394,7 @@ mod tests {
             Path(vec![].into_iter().collect()),
             State(state),
             Query(query_parameters),
+            None,
         )
         .await
         .into_response()

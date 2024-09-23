@@ -8,6 +8,9 @@ on:
                 type: string
                 default: main
                 required: true
+env:
+    REGISTRY: ghcr.io
+    IMAGE_NAME: ${{ github.repository }}
 
 defaults:
     run:
@@ -25,7 +28,7 @@ jobs:
                   repo-token: ${{ secrets.GITHUB_TOKEN }}
             - name: Running examples
               run: |
-                  cargo run
+                  cargo test
 
     prepare-release:
         needs: test

@@ -1,11 +1,11 @@
+# yaml-language-server: $schema=.vscode/configuration_schema.json
 # Common config for all endpoints
 common:
     path_prefix: "/api/v1"
     listen: "0.0.0.0:3000"
     graphql_endpoint: "https://localhost:3000/"
-
-logging:
-    format: "pretty"
+    logging:
+        level: info
 
 # A list of all the new endpoints to create
 endpoints:
@@ -39,9 +39,13 @@ endpoints:
           # This will be added as a root variable joined on the object below
           - from: "id"
             to: "userId"
-
       # Since the GraphQL variables are just a JSON object,
       # an easy way to pass complicated input types is to just put it in the body
       # and pass that on as-is to the GraphQL input
       # { “input”: { “email”: “foo@example.com”, “sendNotification”: true } }
-      use_request_body_as_variables: true
+      body_params:
+          - from: "email"
+            required: false
+          - from: "sendNotification"
+            required: false
+            kind: boolean

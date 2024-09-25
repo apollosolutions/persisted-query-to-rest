@@ -75,4 +75,3 @@ If the type is an `object`, any further downstream properties of that object wil
 
 - Array arguments in query parameters are not supported as multi-value entries (e.g. `?id=1&id=2`), but if needed, passing as a raw array string is supported (e.g. `?ids=[1,2,3,4]`)
 - When a parameter `kind` is set to `object`, there is no way to address specific sub-attributes for variables, only passing it as an object directly
-

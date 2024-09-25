@@ -1,3 +1,9 @@
+## 0.1.2 (2024-09-25)
+
+### 🚀 Features
+
+- new public release
+
 ## 0.1.1 (2024-09-23)
 
 ### 🚀 Features

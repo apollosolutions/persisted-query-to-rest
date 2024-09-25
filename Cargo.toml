@@ -1,6 +1,6 @@
 [package]
 name = "persisted-query-to-rest"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/apollosolutions/persisted-query-to-rest"
 description = "A service that converts persisted GraphQL queries to REST endpoints"

@@ -9,5 +9,5 @@ If you need to manual increment the version you can make an empty commit followi
 
 * Navigate to the [Build and Release action](https://github.com/apollosolutions/persisted-query-to-rest/actions/workflows/release.yml)
 * Trigger a new workflow and pass in the new version you expect to release given all the previous commit history
-  * If you have a PR with a `feat:` prefix and we are on version `v0.2.1` run the workflow with the input `v0.3.0`
+    * The string is the semver string minus the `v` prefix so if you pass in `1.2.3` the release will be cut as `v1.2.3`
  

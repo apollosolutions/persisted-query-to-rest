@@ -120,7 +120,7 @@ jobs:
               uses: knope-dev/action@v2.1.0
               with:
                   version: 0.11.0
-            - run: knope release --verbose --override-version ${{ inputs.version }}
+            - run: knope release --verbose
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     build-and-push-image:

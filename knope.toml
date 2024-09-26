@@ -27,11 +27,9 @@ path = "artifacts/persisted-query-to-rest-x86_64-pc-windows-msvc.tgz"
 
 [[workflows]]
 name = "prepare-release"
-allow_empty = true
 
 [[workflows.steps]]
 type = "PrepareRelease"
-allow_empty = true
 
 [[workflows.steps]]
 type = "Command"

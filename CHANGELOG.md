@@ -1,3 +1,9 @@
+## 0.3.1 (2024-09-26)
+
+### 🚀 Features
+
+- rollback knope commands
+
 ## 0.3.0 (2024-09-26)
 
 ### 🚀 Features

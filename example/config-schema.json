@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Config",
+  "type": "object",
+  "required": [
+    "common",
+    "endpoints"
+  ],
+  "properties": {
+    "common": {
+      "description": "The common configuration for the server",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ServerConfig"
+        }
+      ]
+    },
+    "endpoints": {
+      "description": "The list of endpoints that the server should expose",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Endpoint"
+      }
+    }
+  },
+  "definitions": {
+    "Endpoint": {
+      "type": "object",
+      "required": [
+        "path",
+        "pq_id"
+      ],
+      "properties": {
+        "body_params": {
+          "description": "The body parameters that the endpoint should accept",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "method": {
+          "description": "The method that the endpoint should accept",
+          "default": "GET",
+          "allOf": [
+            {
+              "$ref": "#/definitions/HttpMethod"
+            }
+          ]
+        },
+        "path": {
+          "description": "The path that the endpoint should be exposed on",
+          "type": "string"
+        },
+        "path_arguments": {
+          "description": "The path arguments that the endpoint should accept",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "pq_id": {
+          "description": "The persisted query ID that the endpoint should use",
+          "type": "string"
+        },
+        "query_params": {
+          "description": "The query parameters that the endpoint should accept",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        }
+      }
+    },
+    "HttpMethod": {
+      "description": "The HTTP method for the endpoint to accept",
+      "type": "string",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ]
+    },
+    "LogLevel": {
+      "description": "The log level that the server should use",
+      "type": "string",
+      "enum": [
+        "trace",
+        "debug",
+        "info",
+        "warn",
+        "error"
+      ]
+    },
+    "Logging": {
+      "type": "object",
+      "properties": {
+        "format": {
+          "description": "The format that the logs should be output in",
+          "default": "pretty",
+          "type": "string"
+        },
+        "level": {
+          "description": "The log level that the server should use",
+          "default": "info",
+          "allOf": [
+            {
+              "$ref": "#/definitions/LogLevel"
+            }
+          ]
+        }
+      }
+    },
+    "ParamKind": {
+      "description": "The kind of parameter that is expected if it is not a string",
+      "type": "string",
+      "enum": [
+        "int",
+        "string",
+        "float",
+        "object",
+        "array",
+        "boolean"
+      ]
+    },
+    "Parameter": {
+      "type": "object",
+      "required": [
+        "from"
+      ],
+      "properties": {
+        "from": {
+          "description": "The parameter name that the user will use; e.g. `id` in `/user/:id` or /user/?id=1234",
+          "type": "string"
+        },
+        "kind": {
+          "description": "The kind of parameter that is expected if it is not a string",
+          "default": "string",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ParamKind"
+            }
+          ]
+        },
+        "required": {
+          "description": "Whether the parameter is required or not; by default it is false",
+          "default": false,
+          "type": "boolean"
+        },
+        "to": {
+          "description": "If the operation uses a different name, this is the name the variable should be renamed to",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ServerConfig": {
+      "type": "object",
+      "required": [
+        "graphql_endpoint"
+      ],
+      "properties": {
+        "graphql_endpoint": {
+          "description": "The GraphQL endpoint the server will forward requests to",
+          "type": "string"
+        },
+        "listen": {
+          "description": "The address that the server should listen on",
+          "default": "127.0.0.1:4000",
+          "type": "string"
+        },
+        "logging": {
+          "description": "Basic logging configuration",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Logging"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "path_prefix": {
+          "description": "The prefix for the endpoints the server should use; defaults to `/api/v1`",
+          "default": "/api/v1",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

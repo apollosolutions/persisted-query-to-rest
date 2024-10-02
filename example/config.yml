@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=config-schema.json
+# Common config for all endpoints
+common:
+    path_prefix: "/api/v1"
+    listen: "0.0.0.0:3000"
+    graphql_endpoint: "https://localhost:3000/"
+    logging:
+        level: info
+
+# A list of all the new endpoints to create
+endpoints:
+    # Create an endpoint that requires the id in the path
+    - path: "/users/:id"
+      pq_id: "123456789"
+      path_arguments:
+          # Map the arguments to the GraphQL arg called $userId
+          - from: "id"
+            to: "userId"

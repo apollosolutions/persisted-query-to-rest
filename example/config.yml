@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=config-schema.json
+common:
+  path_prefix: "/api/v1"
+  listen: "0.0.0.0:8080"
+  graphql_endpoint: "https://api.graphql-gtm-demo.com/e-commerce-gtm-demo/"
+  logging:
+    level: info
+
+endpoints:
+  - path: "/userInfo"
+    pq_id: "126c4cf641bff8deba6c863e00e0dc136f31374425d22339e9779a91ae4494d8"

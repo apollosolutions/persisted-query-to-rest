@@ -20,21 +20,33 @@ You can run this project as a [Docker image](https://github.com/apollosolutions/
 
 Here's how to use the pre-built Docker image, mounting a local `config.yml` to a container and using it as a configuration:
 ```
-docker run -p 8080:8080 --mount "type=bind,source=./config.yml,target=/app/config.yml" ghcr.io/apollosolutions/persisted-query-to-rest:v0.1.1 --config /app/config.yml
+docker run -p 8080:8080 --mount "type=bind,source=./config.yml,target=/app/config.yml" ghcr.io/apollosolutions/persisted-query-to-rest:latest --config /app/config.yml
 ```
 
 ## Usage
 
-There are two flags for `persisted-query-to-rest`:
+There is one flag for `persisted-query-to-rest`:
 
 * `--config`, which specifies the config location
-* `--config-schema` which forces the application to print out a JSON schema for YAML validation
-  * See [example_config.yaml](./example_config.yaml) to see an example of setting it up
-  * We use [Red Hat's YAML extension for VSCode](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) to validate
 
 ## Configuration
 
 See [`example_config.yaml`](./example_config.yaml) for a complete example of a configuration.
+
+### Generate a configuration schema
+To generate a YAML schema file you can run the binary with the command `config-schema`. This file can then be configured in your config YAML file to provide autocomplete and validation of the YAML file right in your IDE
+
+```shell
+# forces the application to print out a JSON schema for YAML validation
+./persisted-query-to-rest config-schema > config-schema.json
+```
+OR
+```shell
+docker run ghcr.io/apollosolutions/persisted-query-to-rest:latest config-schema > config-schema.json
+```
+
+* See [example_config.yaml](./example_config.yaml) to see an example of setting it up
+* We use [Red Hat's YAML extension for VSCode](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml) to validate
 
 ### Common
 

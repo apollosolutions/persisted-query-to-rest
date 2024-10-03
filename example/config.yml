@@ -2,7 +2,7 @@
 # Common config for all endpoints
 common:
     path_prefix: "/api/v1"
-    listen: "0.0.0.0:3000"
+    listen: "0.0.0.0:8080"
     graphql_endpoint: "https://localhost:3000/"
     logging:
         level: info
